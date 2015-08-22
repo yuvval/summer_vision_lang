@@ -1,10 +1,7 @@
-Vision - Language CBMM Summer School Project
+Vision - Language CBMM Summer Course Project
 --------
 
-First time run:
-open matlab
-cd to voc-dpm
-type:
+On a first time run, open matlab, cd to voc-dpm and type:
 
     startup
     compile
