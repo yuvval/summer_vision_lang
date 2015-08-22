@@ -1,12 +1,11 @@
-Dependencies
-------------
+Vision - Language CBMM Summer School Project
+--------
 
-You should have voc-dpm repository installed (and compiled) on ~/externals/voc-dpm
-You can clone it by:
+First time run:
+open matlab
+cd to voc-dpm
+type:
 
-    cd ~
-    mkdir externals
-    cd externals
-    git clone https://github.com/rbgirshick/voc-dpm
+    startup
+    compile
 
-Then open matlab on ~/externals/voc-dpm and execute compile.m
