@@ -8,12 +8,13 @@ video = obj.read();
 
 [boxes, classes, scores ] = deal({});
 
-for k=1:3:90
+for k=1:3:90 % TODO - add counter and save frames one after the other
     im=video(:,:,:,k);
     tic
     [boxes{k}, classes{k}, scores{k}, classes_names]  = obj_detect_frame(im, thresh);
     toc
-
+    boxes{k} = ceil(boxes{k});
+    
     imshow(im);
 %     line([boxes{k}(:,1) boxes{k}(:,1) boxes{k}(:,2) boxes{k}(:,2) boxes{k}(:,1)]', [boxes{k}(:,3) boxes{k}(:,4) boxes{k}(:,4) boxes{k}(:,3) boxes{k}(:,3)]', 'color', 'r', 'linewidth', 3, 'linestyle', '-');
     for d=1:size(boxes{k},1)
