@@ -1,13 +1,17 @@
-function preprocess_video(vid_fname, detection_thresh, frame_sample_interval)
+function [ppvid, res_fname, fname_OF ] = preprocess_video(vid_fname, detection_thresh, frame_sample_interval, use_3d_est)
 %% init
 if nargin<1
     vid_fname = '../optical_flow/videos/outfile.avi'; % Person approaches a chair.
 end
+
 if nargin < 2
-    detection_thresh = -1.2;
+    detection_thresh = -1;
 end
 if nargin < 3
     frame_sample_interval = 3; % Sample a frame from video once every X frames.
+end
+if nargin < 4
+    use_3d_est = false;
 end
 
 addpath ../optical_flow
@@ -25,7 +29,7 @@ video = obj.read();
 
 Nframes = size(video,4);
 t = 1; % Sampled frames counter.
-for k=1:frame_sample_interval:(Nframes-frame_sample_interval)
+for k=1:frame_sample_interval:Nframes
     
     % Evaluate detections.
     im=video(:,:,:,k);
@@ -35,40 +39,49 @@ for k=1:frame_sample_interval:(Nframes-frame_sample_interval)
     boxes{t} = ceil(boxes{t}); % convert to integer
     
     %% Evaluate optical flow.
-    im2 = video (:,:,:,k+frame_sample_interval);
-    [im1gray, im2gray] = acquistionSeq(im, im2);
-    
-    uvOF = OpticalFlowCLG_TV(im1gray, im2gray);
-    fname_OF = ['../OF_frames/' vid_name '_OF_' num2str(t) '_' num2str(frame_sample_interval)];
-    save (fname_OF, 'uvOF');
-    
-    % Evaluate detection boxes mean optical flow.
-    
-    n_detections = size(boxes{t},1);
-    [centers{t}, projected_centers{t}] = deal(nan(n_detections ,2));
-    
-    for d=1:n_detections
-        x1 = boxes{t}(d,1);
-        x2 = boxes{t}(d,2);
-        y1 = boxes{t}(d,3);
-        y2 = boxes{t}(d,4);
+    if k <= (Nframes-frame_sample_interval) % we can't eval OF for the last frame, so we skip it.
+        im2 = video (:,:,:,k+frame_sample_interval);
+        [im1gray, im2gray] = acquistionSeq(im, im2);
         
-        u = uvOF(:,:,1).';
-        v = uvOF(:,:,2).';
-        u_box = u(x1:x2, y1:y2);
-        u_avg_box = mean(u_box(:));
+        uvOF = OpticalFlowCLG_TV(im1gray, im2gray);
+        fname_OF = ['../OF_frames/' vid_name '_OF_' num2str(t) '_' num2str(frame_sample_interval)];
+        save (fname_OF, 'uvOF');
+        % Evaluate detection boxes mean optical flow.
         
-        v_box = v(x1:x2, y1:y2);
-        v_avg_box = mean(v_box(:));
+        n_detections = size(boxes{t},1)
+        [centers{t}, projected_centers{t}] = deal(nan(n_detections ,2));
         
-        center_x = (x1+x2)/2;
-        center_y = (y1+y2)/2;
-        centers{t}(d,:) = [center_x, center_y];
-        
-        projected_center_x = center_x + u_avg_box;
-        projected_center_y = center_y + v_avg_box;
-        projected_centers{t}(d,:) = [projected_center_x, projected_center_y];
-        
+        for d=1:n_detections
+            x1 = boxes{t}(d,1);
+            x2 = boxes{t}(d,2);
+            y1 = boxes{t}(d,3);
+            y2 = boxes{t}(d,4);
+            
+            u = uvOF(:,:,1).';
+            v = uvOF(:,:,2).';
+            u_box = u(x1:x2, y1:y2);
+            u_avg_box = mean(u_box(:));
+            
+            v_box = v(x1:x2, y1:y2);
+            v_avg_box = mean(v_box(:));
+            
+            center_x = (x1+x2)/2;
+            center_y = (y1+y2)/2;
+            centers{t}(d,:) = [center_x, center_y];
+            
+            projected_center_x = center_x + u_avg_box;
+            projected_center_y = center_y + v_avg_box;
+            projected_centers{t}(d,:) = [projected_center_x, projected_center_y];
+            
+        end
+    else % eval centers for last frame (no OF there)
+        n_detections = size(boxes{t},1);
+        centers{t} = nan(n_detections ,2);
+        for d=1:n_detections
+            center_x = (x1+x2)/2;
+            center_y = (y1+y2)/2;
+            centers{t}(d,:) = [center_x, center_y];
+        end
     end
     
     if false % (don't) visualize detections
@@ -95,8 +108,8 @@ th_str = regexprep(num2str(detection_thresh), '-', 'm');
 th_str = regexprep(th_str, '\.', '_');
 
 res_fname = ['../preprocessed_videos/' vid_name '_detections_th' th_str];
-save(res_fname, 'boxes', 'classes', 'scores', 'classes_names', 'centers', 'projected_centers' );
-
+save(res_fname, 'vid_fname', 'boxes', 'classes', 'scores', 'classes_names', 'centers', 'projected_centers' ,'detection_thresh', 'frame_sample_interval', 'use_3d_est');
+ppvid = load(res_fname);
 
 function uvOF = OpticalFlowCLG_TV(im1gray, im2gray)
 %%settings
