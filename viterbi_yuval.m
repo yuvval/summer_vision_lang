@@ -1,22 +1,31 @@
-function seq = viterbi_yuval(em_scores, tr_scores, t)
+function seq = viterbi_yuval(em_scores, tr_scores, prev_frame_scores, t)
 
 Nframes = length(em_scores);
 
+n_states = length(em_scores{t});
+
 if t>1
-    curr_tr_scores = sum(tr_scores{t-1},1);
-else
-    curr_tr_scores = 0; % uniform prior distribution
+%     prev_frame_scores
+    curr_tr_scores = tr_scores{t-1};
+else    
+    curr_tr_scores = -1*ones(1, n_states); % uniform prior distribution
 end
 
-frame_scores = em_scores{t} + curr_tr_scores;
-
-if t < Nframes
-    seq = viterbi_yuval(em_scores, tr_scores, t+1);
+frame_scores = nan(1, n_states);
+for s=1:n_states
+    frame_scores(s) = em_scores{t}(s) + max(prev_frame_scores(:) + curr_tr_scores(:,s));
 end
 
 [~, best_state] = max(frame_scores);
+
+if t < Nframes
+    seq = viterbi_yuval(em_scores, tr_scores, frame_scores, t+1);
+end
+
 if t == Nframes
     seq = best_state;
+%     frames_scores = frame_scores;
 else
     seq = [best_state; seq ];
+%     frames_scores = [frame_scores; frames_scores];
 end

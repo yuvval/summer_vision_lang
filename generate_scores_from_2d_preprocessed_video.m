@@ -15,7 +15,6 @@ Nframes = length(ppvid.boxes);
 % iterating per frame and generating emission prob. and transition prob.
 for t=1:Nframes
     % eval emissions scores per frame
-%     ppvid.scores{t}(ppvid.scores{t}<-.99) = -inf; % for debug
     emission_scores_vec{t} = log(sigmoid(ppvid.scores{t}, sig_a_emis, sig_b_emis));
     
     if t<Nframes
@@ -31,6 +30,9 @@ for t=1:Nframes
         
         s_tran_vec = log(sigmoid(minus_dist, sig_a_trans, sig_b_trans));
         transition_scores_mat{t} = sparse(crossp_ids(:,1), crossp_ids(:,2), s_tran_vec);
+        if t>1
+            assert(size(transition_scores_mat{t-1},2) == length(emission_scores_vec{t})); % sanity check, error if false
+        end
     end
     
 end

@@ -1,12 +1,46 @@
 
+
+%% compare with matlab's hmmviterbi
+rng(50)
+% tr = [0.95,0.05;
+%     0.10,0.90];
+% 
+% e = [1/6,  1/6,  1/6,  1/6,  1/6,  1/6;
+%     1/10, 1/10, 1/10, 1/10, 1/10, 1/2;];
+% 
+% [seq, states] = hmmgenerate(5,tr,e);
+% estimatedStates = hmmviterbi(seq,tr,e);
+
+tr = [0.6 0.4; 0.5 0.5];
+e = [0.3, 0.2, 0.2, 0.3; 0.2, 0.3, 0.3, 0.2];
+seq = [3 3 2 1 2 4 3 1 1];
+[e_scores, tr_scores] = deal({});
+for t=1:length(seq)
+    e_scores{t} = log2(e(:,seq(t))).';
+    
+    if t<length(seq)
+       tr_scores{t} = log2(tr);
+    end
+end
+
+estimatedStates = hmmviterbi(seq,tr,e);
+my_viterbi_estimatedStates = viterbi_yuval(e_scores, tr_scores, 0, 1);
+% seq
+% estimatedStates
+% my_viterbi_estimatedStates.'
+% frames_scores
+if ~all(my_viterbi_estimatedStates == estimatedStates.')
+    error('a bug in my viterbi implementation')
+end
+
+%% visualize sequence
+if true
+
 ppvid = load('preprocessed_videos/outfile_detections_thm1_1.mat');
 [s_em, s_tr] = generate_scores_from_2d_preprocessed_video(ppvid);
 
-seq = viterbi_yuval(s_em, s_tr, 1);
-
-
-%% visualize sequence
-
+seq = viterbi_yuval(s_em, s_tr, 0, 1);
+    
 frame_sample_interval = 3;
 obj = VideoReader(['voc-dpm/' ppvid.vid_fname]);
 video = obj.read();
@@ -33,5 +67,5 @@ for k = 1:frame_sample_interval:size(video,4)
     pause(0.2)
     t=t+1;
 end
-
+end
 
