@@ -14,6 +14,7 @@ rng(50)
 tr = [0.6 0.4; 0.5 0.5];
 e = [0.3, 0.2, 0.2, 0.3; 0.2, 0.3, 0.3, 0.2];
 seq = [3 3 2 1 2 4 3 1 1];
+
 [e_scores, tr_scores] = deal({});
 for t=1:length(seq)
     e_scores{t} = log2(e(:,seq(t))).';

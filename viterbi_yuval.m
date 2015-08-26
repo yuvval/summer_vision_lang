@@ -3,6 +3,10 @@ function seq = viterbi_yuval(em_scores, tr_scores, prev_frame_scores, t)
 Nframes = length(em_scores);
 
 n_states = length(em_scores{t});
+assignin('base', 'one', em_scores);
+assignin('base', 'Two', tr_scores);
+assignin('base', 'Three', prev_frame_scores);
+assignin('base', 'Four', t);
 
 if t>1
 %     prev_frame_scores
