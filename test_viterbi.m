@@ -14,6 +14,7 @@ rng(50)
 tr = [0.6 0.4; 0.5 0.5];
 e = [0.3, 0.2, 0.2, 0.3; 0.2, 0.3, 0.3, 0.2];
 seq = [3 3 2 1 2 4 3 1 1];
+
 [e_scores, tr_scores] = deal({});
 for t=1:length(seq)
     e_scores{t} = log2(e(:,seq(t))).';
@@ -36,7 +37,7 @@ end
 %% visualize sequence
 if true
 
-ppvid = load('preprocessed_videos/outfile_detections_thm1_1.mat');
+ppvid = load('preprocessed_videos/outfile_detections_thm1.mat');
 [s_em, s_tr] = generate_scores_from_2d_preprocessed_video(ppvid);
 
 seq = viterbi_yuval(s_em, s_tr, 0, 1);

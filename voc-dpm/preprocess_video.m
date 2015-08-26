@@ -48,7 +48,7 @@ for k=1:frame_sample_interval:Nframes
         save (fname_OF, 'uvOF');
         % Evaluate detection boxes mean optical flow.
         
-        n_detections = size(boxes{t},1)
+        n_detections = size(boxes{t},1);
         [centers{t}, projected_centers{t}] = deal(nan(n_detections ,2));
         
         for d=1:n_detections
