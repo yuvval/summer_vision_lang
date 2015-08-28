@@ -30,12 +30,21 @@ end
 %% visualize sequence
 if true
 
-ppvid = load('preprocessed_videos/outfile_detections_thm0_9.mat');
+ppvid = load('preprocessed_videos/outfile_detections_thm1_1.mat');
 
 % setting the tuning params for probabilities and features binning / sigmoiding
-tuning_params.sig_a_emis = 10;
-tuning_params.sig_b_emis = -0.8;
-tuning_params.sig_a_trans = 0.5;
+% emission probablities sigmoid params
+tuning_params.other.sig_a = 10;
+tuning_params.other.sig_b = -0.8;
+
+tuning_params.person.sig_a = 5;
+tuning_params.person.sig_b = -0.4;
+
+tuning_params.chair.sig_a = 10;
+tuning_params.chair.sig_b = -0.87;
+
+% transition probablities sigmoid params
+tuning_params.sig_a_trans = 0.3;
 tuning_params.sig_b_trans = -4;
 
 [s_em, s_tr, feat_per_tr] = generate_scores_from_2d_preprocessed_video(ppvid, tuning_params);
@@ -68,7 +77,7 @@ for k = 1:frame_sample_interval:size(video,4)
     y2 = boxes{t}(d,4);
     label = ppvid.classes_names{ppvid.classes{t}(d)};
 %     label = sprintf('%s, %2.3f', label, ppvid.scores{t}(d));
-    feat_name = 'velocity_orientation';
+    feat_name = 'velocity_angle';
     feat_id = find(ismember(feat_per_tr.names, feat_name));
     
 %     feat_val = ppvid.scores{t}(d);
@@ -85,4 +94,4 @@ end
 end
 
 figure
-hist(feat_history);shg
+% hist(feat_history, 0:0.25:5);shg
