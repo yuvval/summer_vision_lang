@@ -170,10 +170,12 @@ end
 % Total Emission Coefficient
 
 for i=1:30
-    for j=1:size(s_em,1)
-        for jj=1:size(s_em,1)
+    k=0;
+    for j=1:size(s_em,2)
+        for jj=1:size(s_em,2)
             for jjj=1:3
-                Em{i}=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+                k=k+1;
+                Em{i}(k)=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
             end
         end
     end
@@ -183,19 +185,14 @@ end
 % Total Transmission coefficient
 
 for i=1:29
-    for j=1:size(s_em,1)
-        for jj=1:size(s_em,1)
+    kk=0;
+    for j=1:size(s_tr,2)
+        for jj=1:size(s_tr,2)
             for jjj=1:3
-                Em{i}=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+                kk=kk+1;
+                Tr{i}=s_tr(j,1)+s_tr(jj,1)+Approach_tr{i}(jjj)+tr_person(i)+tr_chair(i);
             end
         end
     end
 end
-
-
-
-
-
-
-
 
