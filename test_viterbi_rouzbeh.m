@@ -168,14 +168,16 @@ end
 % frames
 
 % Total Emission Coefficient
-
 for i=1:30
     k=0;
     for j=1:size(s_em,2)
         for jj=1:size(s_em,2)
             for jjj=1:3
                 k=k+1;
-                Em{i}(k)=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+                Em{i,k,1}=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+                %here I try to kep all of the indices to help me in the
+                %transition phase
+                Em{i,k,2}=[j,jj,jjj];
             end
         end
     end
@@ -185,14 +187,19 @@ end
 % Total Transmission coefficient
 
 for i=1:29
-    kk=0;
-    for j=1:size(s_tr,2)
-        for jj=1:size(s_tr,2)
-            for jjj=1:3
-                kk=kk+1;
-                Tr{i}=s_tr(j,1)+s_tr(jj,1)+Approach_tr{i}(jjj)+tr_person(i)+tr_chair(i);
-            end
+    j=i+1;
+    for ii=1:k
+        for jj=1:k
+            %tracker number one indice
+            Tk_1=Em{i,ii,2}(1);
+            %tracker number two indice
+            Tk_2=Em{i,ii,2}(2);
+            %Word(Approach) Indice
+            AR=Em{i,ii,2}(3);
+            Tr{i,ii,jj}=;
         end
+        
     end
+    
 end
 
