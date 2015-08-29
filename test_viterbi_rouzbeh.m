@@ -187,19 +187,24 @@ end
 % Total Transmission coefficient
 
 for i=1:29
-    j=i+1;
     for ii=1:k
-        for jj=1:k
-            %tracker number one indice
-            Tk_1=Em{i,ii,2}(1);
-            %tracker number two indice
-            Tk_2=Em{i,ii,2}(2);
-            %Word(Approach) Indice
-            AR=Em{i,ii,2}(3);
-            Tr{i,ii,jj}=;
-        end
+        %tracker number one indice for the first frame
+        Tk1_1=Em{i,ii,2}(1);
+        %tracker number two indice for the first frame
+        Tk1_2=Em{i,ii,2}(2);
+        %Word(Approach) Indice for the first frame
+        AR1=Em{i,ii,2}(3);
         
-    end
-    
+        for jj=1:k
+            %tracker number one indice for the second frame
+            Tk2_1=Em{i+1,jj,2}(1);
+            %tracker number two indice for the second frame
+            Tk2_2=Em{i+1,jj,2}(2);
+            %Word(Approach) Indice for the second frame
+            AR2=Em{i+1,jj,2}(3);
+            Tr{i,ii,jj}=Approach_tr{i}(AR1,AR2)+tr_chair(i)+tr_person(i)...
+            +s_tr{i}(Tk1_1,Tk2_1)+s_tr{i}(Tk1_2,Tk2_2);
+        end
+    end   
 end
 
