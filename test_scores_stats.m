@@ -1,7 +1,7 @@
 % function [emission_scores, transition_scores] = generate_scores_from_2d_preprocessed_video(ppvid)
 
 close all
-ppvid = load('preprocessed_videos/outfile_detections_thm1_1.mat');
+ppvid = load('preprocessed_videos/outfile_detections_thm1.mat');
 % 'vid_fname', 'boxes', 'classes', 'scores', 'classes_names', 'centers', 'projected_centers' 
 
 
