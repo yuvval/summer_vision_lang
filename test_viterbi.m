@@ -30,7 +30,7 @@ end
 %% visualize sequence
 if true
 
-ppvid = load('preprocessed_videos/outfile_detections_thm1_1.mat');
+ppvid = load('preprocessed_videos/outfile_detections_thm0_9.mat');
 
 % setting the tuning params for probabilities and features binning / sigmoiding
 % emission probablities sigmoid params
