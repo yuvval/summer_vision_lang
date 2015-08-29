@@ -107,10 +107,10 @@ end
 % Calculating emission and transmission coefficients for person and chair
 % which have the same values
 
-em_person=ones(1,30);
-tr_person=ones(1,29);
-em_chair=ones(1,30);
-tr_chair=ones(1,29);
+em_person=log10(ones(1,30));
+tr_person=log10(ones(1,29));
+em_chair=log10(ones(1,30));
+tr_chair=log10(ones(1,29));
 
 % Calulating emission and transmission coefficients for the Word "Approach"
 % in 3 different stages
@@ -167,20 +167,30 @@ end
 % into one set of vector for each one of transmisiion and emission of 30
 % frames
 
+% Total Emission Coefficient
+
+for i=1:30
+    for j=1:size(s_em,1)
+        for jj=1:size(s_em,1)
+            for jjj=1:3
+                Em{i}=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+            end
+        end
+    end
+end
 
 
+% Total Transmission coefficient
 
-
-
-
-
-
-
-
-
-
-
-
+for i=1:29
+    for j=1:size(s_em,1)
+        for jj=1:size(s_em,1)
+            for jjj=1:3
+                Em{i}=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+            end
+        end
+    end
+end
 
 
 
