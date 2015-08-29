@@ -77,7 +77,7 @@ for k = 1:frame_sample_interval:size(video,4)
     y2 = boxes{t}(d,4);
     label = ppvid.classes_names{ppvid.classes{t}(d)};
 %     label = sprintf('%s, %2.3f', label, ppvid.scores{t}(d));
-    feat_name = 'velocity_angle';
+    feat_name = 'velocity_abs';
     feat_id = find(ismember(feat_per_tr.names, feat_name));
     
 %     feat_val = ppvid.scores{t}(d);

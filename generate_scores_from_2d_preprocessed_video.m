@@ -52,13 +52,13 @@ for t=1:Nframes
     
     % generate features vector
     [features_per_transition.values{t}, features_per_transition.names] = get_all_combinations_of_features_of_frame(t, ppvid);
-    
+    features_per_transition.classes_names = ppvid.classes_names;
 end
 
 function [all_comb_features_of_frame, features_per_transition_names] = get_all_combinations_of_features_of_frame(t, ppvid)
 
 % features per transition (per frame) names
-features_per_transition_names = {'class', 'center', 'velocity_binned', 'velocity_orientation', 'velocity_abs', 'velocity_angle'};
+features_per_transition_names = {'class', 'center_x', 'center_y', 'velocity_binned', 'velocity_orientation', 'velocity_abs', 'velocity_angle'};
 
 f_num = length(features_per_transition_names);
 
@@ -82,14 +82,21 @@ for k=1:length(crossp_ids(:,2))
 end
 
 
-% center
-feat_name = 'center';
+% center x coordinate
+feat_name = 'center_x';
 feat_id = find(ismember(features_per_transition_names, feat_name));
 % all_comb_features_of_frame(crossp_ids(:,1), crossp_ids(:,2), feat_id) = ppvid.centers{t}(crossp_ids(:,2));
 for k=1:length(crossp_ids(:,2))
-    all_comb_features_of_frame(:, crossp_ids(k,2), feat_id) = ppvid.centers{t}(crossp_ids(k,2));
+    all_comb_features_of_frame(:, crossp_ids(k,2), feat_id) = ppvid.centers{t}(crossp_ids(k,2), 1);
 end
 
+% center y coordinate
+feat_name = 'center_y';
+feat_id = find(ismember(features_per_transition_names, feat_name));
+% all_comb_features_of_frame(crossp_ids(:,1), crossp_ids(:,2), feat_id) = ppvid.centers{t}(crossp_ids(:,2));
+for k=1:length(crossp_ids(:,2))
+    all_comb_features_of_frame(:, crossp_ids(k,2), feat_id) = ppvid.centers{t}(crossp_ids(k,2), 2);
+end
 
 % velocity_binned
 feat_name = 'velocity_binned';
