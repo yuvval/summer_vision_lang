@@ -24,18 +24,23 @@ for t = 1:Nframes
     end
     
     cross_p_all_hmms_states{t} = allcomb(1:n_det1, 1:n_det1, 1:n_verb_states, 1, 1).';
+    n_curr_all_states = length(cross_p_all_hmms_states{t});
+    
+    cross_em_scores{t} = nan(n_curr_all_states, 1);
+    cnt = 1;
     for comb_state = cross_p_all_hmms_states{t}
         tracker1_state = comb_state(1);
         tracker2_state = comb_state(2);
         verb_state = comb_state(3);
-        cross_em_scores{t} = tracker_scores.em{t}(tracker1_state) + tracker_scores.em{t}(tracker2_state) ...
+        cross_em_scores{t}(cnt) = tracker_scores.em{t}(tracker1_state) + tracker_scores.em{t}(tracker2_state) ...
             + verb_em_scores{t}(verb_state, tracker1_state, tracker2_state) ...
             + noun1_em_scores{t} + noun2_em_scores{t};
-        
+        cnt = cnt+1;
     end
+    assert(all(~isnan(cross_em_scores{t}))); % sanity check. error if fails.
+    
     
     cross_p_all_hmms_states_next = allcomb(1:n_det_next, 1:n_det_next, 1:n_verb_states, 1, 1).';
-    n_curr_all_states = length(cross_p_all_hmms_states{t});
     n_next_all_states = length(cross_p_all_hmms_states_next);
     
     cross_tr_scores_mat{t} = nan(n_curr_all_states, n_next_all_states);
@@ -44,12 +49,12 @@ for t = 1:Nframes
     %% TODO: Need to eval scores for transitions (x-products) and
     if t<Nframes
         for transition = all_transitions
-            comb_state_curr = cross_p_all_hmms_states{t}(transition(1), :);
+            comb_state_curr = cross_p_all_hmms_states{t}(:, transition(1));
             trkr1_state_curr = comb_state_curr(1);
             trkr2_state_curr = comb_state_curr(2);
             verb_state_curr = comb_state_curr(3);
             
-            comb_state_next = cross_p_all_hmms_states{t}(transition(2), :);
+            comb_state_next = cross_p_all_hmms_states_next(:, transition(2));
             trkr1_state_next = comb_state_next(1);
             trkr2_state_next = comb_state_next(2);
             verb_state_next = comb_state_next(3);
