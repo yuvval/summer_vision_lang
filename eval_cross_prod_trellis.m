@@ -4,7 +4,7 @@ Nframes = length(tracker_feats.values);
 
 [ cross_em_scores, cross_tr_scores_mat, noun1_em_scores, noun2_em_scores, verb_em_scores, cross_p_all_hmms_states ] = deal({});
 
-for t = 1:Nframes
+for t = 1:(Nframes-1)
     n_det1 = size(tracker_feats.values{t}, 2);
     n_det_next = size(tracker_feats.values{t+1}, 2);
     
@@ -24,7 +24,7 @@ for t = 1:Nframes
     end
     
     cross_p_all_hmms_states{t} = allcomb(1:n_det1, 1:n_det1, 1:n_verb_states, 1, 1).';
-    n_curr_all_states = length(cross_p_all_hmms_states{t});
+    n_curr_all_states = size(cross_p_all_hmms_states{t},2);
     
     cross_em_scores{t} = nan(n_curr_all_states, 1);
     cnt = 1;
@@ -41,7 +41,7 @@ for t = 1:Nframes
     
     
     cross_p_all_hmms_states_next = allcomb(1:n_det_next, 1:n_det_next, 1:n_verb_states, 1, 1).';
-    n_next_all_states = length(cross_p_all_hmms_states_next);
+    n_next_all_states = size(cross_p_all_hmms_states_next,2)
     
     cross_tr_scores_mat{t} = nan(n_curr_all_states, n_next_all_states);
     
