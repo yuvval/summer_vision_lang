@@ -1,34 +1,34 @@
-function [ cross_em_scores, cross_tr_scores_mat, all_crossp_states_t1_t2_v_n1_n2 ] = eval_cross_prod_trellis( verb, noun1, noun2, tracker_scores, tracker_feats)
+function [ cross_em_scores, cross_tr_scores_mat, cross_p_all_hmms_states ] = eval_cross_prod_trellis( verb, noun1, noun2, tracker_scores, tracker_feats)
 
-n_frames = length(tracker_feats.values);
+Nframes = length(tracker_feats.values);
 
 [ cross_em_scores, cross_tr_scores_mat, noun1_em_scores, noun2_em_scores, verb_em_scores, cross_p_all_hmms_states ] = deal({});
 
-for t = 1:n_frames
-    n_det1 = size(feat_per_tr.values{t}, 2);
-    n_det_next = size(feat_per_tr.values{t+1}, 2);
+for t = 1:Nframes
+    n_det1 = size(tracker_feats.values{t}, 2);
+    n_det_next = size(tracker_feats.values{t+1}, 2);
     
     % caching scores per word and its observations upon the tracker
-    for tracker_state = 1:length(tracker_scores{t}.em)
-        noun1_em_scores{t} = error('todo'); % log( em_prob_noun (noun1, tracker_feats, t, tracker_state));
-        noun2_em_scores{t} = error('todo'); % log( em_prob_noun (noun2, tracker_feats, t, tracker_state));
+    for tracker_state = 1:length(tracker_scores.em{t})
+        noun1_em_scores{t} = log( compute_emission_probability_noun(noun1, tracker_feats, t, tracker_state));
+        noun2_em_scores{t} = log( compute_emission_probability_noun(noun2, tracker_feats, t, tracker_state));
     end
-
+    
     verb_tr_scores_mat = log(verb_transition_probability(verb));
     cross_p_trackers_states = allcomb(1:n_det1, 1:n_det1).';
     n_verb_states = size(verb_tr_scores_mat,1);
     for verb_state = 1:n_verb_states
         for states = cross_p_trackers_states
-            verb_em_scores{t}(verb_state, states(1), states(2)) = error('todo'); % log(em_prob_verb(verb, verb_state, tracker_feats, t, states(1), states(2))); 
+            verb_em_scores{t}(verb_state, states(1), states(2)) = log(compute_emission_probability_verb(verb, verb_state, tracker_feats, t, states(1), states(2)));
         end
     end
     
     cross_p_all_hmms_states{t} = allcomb(1:n_det1, 1:n_det1, 1:n_verb_states, 1, 1).';
-    for comb_state = cross_p_all_hmms_states
+    for comb_state = cross_p_all_hmms_states{t}
         tracker1_state = comb_state(1);
         tracker2_state = comb_state(2);
         verb_state = comb_state(3);
-        cross_em_scores{t} = tracker_scores{t}.em(tracker1_state) + tracker_scores{t}.em(tracker2_state) ...
+        cross_em_scores{t} = tracker_scores.em{t}(tracker1_state) + tracker_scores.em{t}(tracker2_state) ...
             + verb_em_scores{t}(verb_state, tracker1_state, tracker2_state) ...
             + noun1_em_scores{t} + noun2_em_scores{t};
         
@@ -53,7 +53,7 @@ for t = 1:n_frames
             trkr1_state_next = comb_state_next(1);
             trkr2_state_next = comb_state_next(2);
             verb_state_next = comb_state_next(3);
-
+            
             curr_tr_score = tracker_scores.tr{t}(trkr1_state_curr, trkr1_state_next) ...
                 + tracker_scores.tr{t}(trkr2_state_curr, trkr2_state_next) ...
                 + verb_tr_scores_mat(verb_state_curr, verb_state_next);
@@ -63,9 +63,9 @@ for t = 1:n_frames
     if t>1
         assert(size(cross_tr_scores_mat{t-1},2) == length(cross_em_scores{t})); % sanity check, error if false
     end
-
-            
-        
+    
+    
+    
     
 end
 
