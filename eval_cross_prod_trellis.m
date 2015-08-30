@@ -19,7 +19,7 @@ for t = 1:Nframes
     n_verb_states = size(verb_tr_scores_mat,1);
     for verb_state = 1:n_verb_states
         for states = cross_p_trackers_states
-            verb_em_scores{t}(verb_state, states(1), states(2)) = log(compute_emission_probability_verb(verb, verb_state, tracker_feats, t, states(1), states(2)));
+            verb_em_scores{t}(states(1), states(2), verb_state) = log(compute_emission_probability_verb(verb, verb_state, tracker_feats, t, states(1), states(2)));
         end
     end
     
@@ -33,7 +33,7 @@ for t = 1:Nframes
         tracker2_state = comb_state(2);
         verb_state = comb_state(3);
         cross_em_scores{t}(cnt) = tracker_scores.em{t}(tracker1_state) + tracker_scores.em{t}(tracker2_state) ...
-            + verb_em_scores{t}(verb_state, tracker1_state, tracker2_state) ...
+            + verb_em_scores{t}(tracker1_state, tracker2_state, verb_state) ...
             + noun1_em_scores{t}(tracker1_state) + noun2_em_scores{t}(tracker2_state);
         cnt = cnt+1;
     end
