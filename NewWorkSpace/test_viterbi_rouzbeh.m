@@ -30,7 +30,7 @@ end
 %% visualize sequence
 if true
 
-ppvid = load('preprocessed_videos/outfile_detections_thm1_1.mat');
+ppvid = load('preprocessed_videos/outfile_detections_thm1.mat');
 
 % setting the tuning params for probabilities and features binning / sigmoiding
 % emission probablities sigmoid params
@@ -170,43 +170,66 @@ end
 % Total Emission Coefficient
 k=0;
 K=ones(1,30);
+Em=cell(2,30);
 for i=1:30
-    K(i)=k;
     k=0;
+    clear B;
+    clear A;
     for j=1:size(s_em{i},1)
         for jj=1:size(s_em{i},1)
             for jjj=1:3
                 k=k+1;
-                Em{i,k,1}=s_em{i}(j,1)+s_em{i}(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
-                %here I try to keep all of the indices to help me in the
+                %Em{i,k,1}=s_em{i}(j,1)+s_em{i}(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+                A(k)=s_em{i}(j,1)+s_em{i}(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+                %Here I try to keep all of the indices to help me in the
                 %transition phase
-                Em{i,k,2}=[j,jj,jjj];
+                B{k}=[j,jj,jjj];
             end
         end
     end
+    Em{1,i}=A';
+    Em{2,i}=cell2mat(B');
+    K(i)=k;
 end
 
-
 % Total Transmission coefficient
-
+Tr=cell(1,29);
 for i=1:29
+    clear AA;
     for I=1:K(i+1)
         for II=1:K(i)
             %tracker number one indice for the first frame
-            Tk1_1=Em{i,II,2}(1);
+            Tk1_1=Em{2,i}(II,1);
             %tracker number two indice for the first frame
-            Tk2_1=Em{i,II,2}(2);
+            Tk2_1=Em{2,i}(II,2);
             %Word(Approach) Indice for the first frame
-            AR1=Em{i,II,2}(3);
+            AR1=Em{2,i}(II,3);
             %tracker number one indice for the second frame
-            Tk1_2=Em{i+1,I,2}(1);
+            Tk1_2=Em{2,i+1}(I,1);
             %tracker number two indice for the second frame
-            Tk2_2=Em{i+1,I,2}(2);
+            Tk2_2=Em{2,i+1}(I,2);
             %Word(Approach) Indice for the second frame
-            AR2=Em{i+1,I,2}(3);
-            Tr{i,II,I}=Approach_tr{i}(AR1,AR2)+tr_chair(i)+tr_person(i)...
+            AR2=Em{2,i+1}(I,3);
+            AA(II,I)=Approach_tr{i}(AR1,AR2)+tr_chair(i)+tr_person(i)...
             +s_tr{i}(Tk1_1,Tk1_2)+s_tr{i}(Tk2_1,Tk2_2);
         end
-    end   
+    end
+    Tr{i}=AA;
 end
+
+S_Tr=Tr;
+S_Em=cell(1,30);
+for i=1:30
+    S_Em{i}=Em{1,i};
+end
+
+
+load('preprocessed_videos/outfile_detections_thm1.mat')
+XX=viterbi_yuval(S_Em, S_Tr, 0, 1);
+ for ss=1:30
+   clear Q
+   Q=Em{2,ss}(XX(ss),:);
+   sec1(ss)=classes{ss}(Q(1));
+   sec2(ss)=classes{ss}(Q(2));
+ end
 
