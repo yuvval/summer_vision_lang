@@ -11,5 +11,5 @@ class_num = find(ismember(tracker_feats.classes_names, noun_name));  %it maps th
 if class_num_tracker== class_num            %e.g. if the class number of the detection is equal to the class number of tha name; 1= index to find the class in the features vector
    em_prob_noun = 1;
 else
-    em_prob_noun = 10^-6;
+    em_prob_noun = 0;
 end

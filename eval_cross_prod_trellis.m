@@ -4,14 +4,14 @@ Nframes = length(tracker_feats.values);
 
 [ cross_em_scores, cross_tr_scores_mat, noun1_em_scores, noun2_em_scores, verb_em_scores, cross_p_all_hmms_states ] = deal({});
 
-for t = 1:(Nframes-1)
+for t = 1:Nframes
     n_det1 = size(tracker_feats.values{t}, 2);
-    n_det_next = size(tracker_feats.values{t+1}, 2);
     
     % caching scores per word and its observations upon the tracker
+    [noun1_em_scores{t}, noun2_em_scores{t}] = deal(nan(length(tracker_scores.em{t}),1));
     for tracker_state = 1:length(tracker_scores.em{t})
-        noun1_em_scores{t} = log( compute_emission_probability_noun(noun1, tracker_feats, t, tracker_state));
-        noun2_em_scores{t} = log( compute_emission_probability_noun(noun2, tracker_feats, t, tracker_state));
+        noun1_em_scores{t}(tracker_state) = log( compute_emission_probability_noun(noun1, tracker_feats, t, tracker_state));
+        noun2_em_scores{t}(tracker_state) = log( compute_emission_probability_noun(noun2, tracker_feats, t, tracker_state));
     end
     
     verb_tr_scores_mat = log(verb_transition_probability(verb));
@@ -34,20 +34,21 @@ for t = 1:(Nframes-1)
         verb_state = comb_state(3);
         cross_em_scores{t}(cnt) = tracker_scores.em{t}(tracker1_state) + tracker_scores.em{t}(tracker2_state) ...
             + verb_em_scores{t}(verb_state, tracker1_state, tracker2_state) ...
-            + noun1_em_scores{t} + noun2_em_scores{t};
+            + noun1_em_scores{t}(tracker1_state) + noun2_em_scores{t}(tracker2_state);
         cnt = cnt+1;
     end
     assert(all(~isnan(cross_em_scores{t}))); % sanity check. error if fails.
     
     
-    cross_p_all_hmms_states_next = allcomb(1:n_det_next, 1:n_det_next, 1:n_verb_states, 1, 1).';
-    n_next_all_states = size(cross_p_all_hmms_states_next,2)
-    
-    cross_tr_scores_mat{t} = nan(n_curr_all_states, n_next_all_states);
-    
-    all_transitions = allcomb(1:n_curr_all_states, 1:n_next_all_states).';
-    %% TODO: Need to eval scores for transitions (x-products) and
+    %% Eval scores for transitions (x-products) and
     if t<Nframes
+        n_det_next = size(tracker_feats.values{t+1}, 2);
+        cross_p_all_hmms_states_next = allcomb(1:n_det_next, 1:n_det_next, 1:n_verb_states, 1, 1).';
+        n_next_all_states = size(cross_p_all_hmms_states_next,2);
+        
+        cross_tr_scores_mat{t} = nan(n_curr_all_states, n_next_all_states);
+        
+        all_transitions = allcomb(1:n_curr_all_states, 1:n_next_all_states).';
         for transition = all_transitions
             comb_state_curr = cross_p_all_hmms_states{t}(:, transition(1));
             trkr1_state_curr = comb_state_curr(1);

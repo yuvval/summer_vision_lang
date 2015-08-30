@@ -32,7 +32,7 @@ if verb_state_n == 1
     if velocity1_binned==1 && velocity2_binned==1 &&  (distance>50)
         em_prob_verb = 1;
     else 
-        em_prob_verb = 10^-6;
+        em_prob_verb = 0;
     end
 end
         
@@ -40,7 +40,7 @@ if verb_state_n == 2
     if velocity1_binned==2 && velocity2_binned==1 &&  (distance>20)
         em_prob_verb = 1;
     else 
-        em_prob_verb = 10^-6;
+        em_prob_verb = 0;
     end
 end
 
@@ -49,7 +49,7 @@ if verb_state_n == 3
     if velocity1_binned==1 && velocity2_binned==1 &&  (distance < 50)
         em_prob_verb = 1;
     else 
-        em_prob_verb = 10^-6;
+        em_prob_verb = 0;
     end
 end
 

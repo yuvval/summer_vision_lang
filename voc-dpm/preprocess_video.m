@@ -5,7 +5,7 @@ if nargin<1
 end
 
 if nargin < 2
-    detection_thresh = -1.1;
+    detection_thresh = -0.98;
 end
 if nargin < 3
     frame_sample_interval = 3; % Sample a frame from video once every X frames.
