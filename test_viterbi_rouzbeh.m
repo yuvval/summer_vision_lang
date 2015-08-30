@@ -30,7 +30,7 @@ end
 %% visualize sequence
 if true
 
-ppvid = load('preprocessed_videos/outfile_detections_thm0_9.mat');
+ppvid = load('preprocessed_videos/outfile_detections_thm1_1.mat');
 
 % setting the tuning params for probabilities and features binning / sigmoiding
 % emission probablities sigmoid params
@@ -135,12 +135,12 @@ end
 
 epsilon=0.00001;
 for i=1:30
-  a_1=find(feat_per_tr.value{1}(1,:,1)==15);
-  a_2=find(feat_per_tr.value{1}(1,:,1)==9);
-  Abs=sqrt((feat_per_tr.value{1}(1,a_1,2)-feat_per_tr.value{1}(1,a_2,2))^2 ...
-      + (feat_per_tr.value{1}(1,a_1,3)-feat_per_tr.value{1}(1,a_2,3))^2);
-  Velocity_person=feat_per_tr.value{1}(1,a_1,4);
-  Velocity_chair=feat_per_tr.value{1}(1,a_2,4);
+  a_1=find(feat_per_tr.values{1}(1,:,1)==15);
+  a_2=find(feat_per_tr.values{1}(1,:,1)==9);
+  Abs=sqrt((feat_per_tr.values{1}(1,a_1(1),2)-feat_per_tr.values{1}(1,a_2(1),2))^2 ...
+      + (feat_per_tr.values{1}(1,a_1(1),3)-feat_per_tr.values{1}(1,a_2(1),3))^2);
+  Velocity_person=feat_per_tr.values{1}(1,a_1(1),4);
+  Velocity_chair=feat_per_tr.values{1}(1,a_2(1),4);
   
   if Velocity_person == 1 && Velocity_chair==1 && Abs>100
       Approach_em{i}(1)=log10(1-epsilon);
@@ -148,13 +148,13 @@ for i=1:30
       Approach_em{i}(1)=log10(epsilon);
   end
   
-  if Velocity_person == 2 && Velocity_chair==0 && Abs>100
+  if Velocity_person == 2 && Velocity_chair==1 && Abs>100
       Approach_em{i}(2)=log10(1-epsilon);
   else
       Approach_em{i}(2)=log10(epsilon);
   end
   
-  if Velocity_person == 0 && Velocity_chair==0 && Abs<100
+  if Velocity_person == 1 && Velocity_chair==1 && Abs<100
       Approach_em{i}(3)=log10(1-epsilon);
   else
       Approach_em{i}(3)=log10(epsilon);
@@ -168,14 +168,17 @@ end
 % frames
 
 % Total Emission Coefficient
+k=0;
+K=ones(1,30);
 for i=1:30
+    K(i)=k;
     k=0;
-    for j=1:size(s_em,2)
-        for jj=1:size(s_em,2)
+    for j=1:size(s_em{i},1)
+        for jj=1:size(s_em{i},1)
             for jjj=1:3
                 k=k+1;
-                Em{i,k,1}=s_em(j,1)+s_em(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
-                %here I try to kep all of the indices to help me in the
+                Em{i,k,1}=s_em{i}(j,1)+s_em{i}(jj,1)+Approach_em{i}(jjj)+em_person(i)+em_chair(i);
+                %here I try to keep all of the indices to help me in the
                 %transition phase
                 Em{i,k,2}=[j,jj,jjj];
             end
@@ -187,23 +190,22 @@ end
 % Total Transmission coefficient
 
 for i=1:29
-    for ii=1:k
-        %tracker number one indice for the first frame
-        Tk1_1=Em{i,ii,2}(1);
-        %tracker number two indice for the first frame
-        Tk1_2=Em{i,ii,2}(2);
-        %Word(Approach) Indice for the first frame
-        AR1=Em{i,ii,2}(3);
-        
-        for jj=1:k
+    for I=1:K(i+1)
+        for II=1:K(i)
+            %tracker number one indice for the first frame
+            Tk1_1=Em{i,II,2}(1);
+            %tracker number two indice for the first frame
+            Tk2_1=Em{i,II,2}(2);
+            %Word(Approach) Indice for the first frame
+            AR1=Em{i,II,2}(3);
             %tracker number one indice for the second frame
-            Tk2_1=Em{i+1,jj,2}(1);
+            Tk1_2=Em{i+1,I,2}(1);
             %tracker number two indice for the second frame
-            Tk2_2=Em{i+1,jj,2}(2);
+            Tk2_2=Em{i+1,I,2}(2);
             %Word(Approach) Indice for the second frame
-            AR2=Em{i+1,jj,2}(3);
-            Tr{i,ii,jj}=Approach_tr{i}(AR1,AR2)+tr_chair(i)+tr_person(i)...
-            +s_tr{i}(Tk1_1,Tk2_1)+s_tr{i}(Tk1_2,Tk2_2);
+            AR2=Em{i+1,I,2}(3);
+            Tr{i,II,I}=Approach_tr{i}(AR1,AR2)+tr_chair(i)+tr_person(i)...
+            +s_tr{i}(Tk1_1,Tk1_2)+s_tr{i}(Tk2_1,Tk2_2);
         end
     end   
 end
